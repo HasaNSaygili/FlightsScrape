@@ -19,20 +19,20 @@ export default function Home() {
   const fetchFlights = async (showLoading = true) => {
     if (showLoading) setIsLoading(true);
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 2);
+    const startTime = new Date();
+    startTime.setHours(startTime.getHours() - 3); // Start from 3 hours ago to catch recent updates
+    const endTime = new Date();
+    endTime.setDate(endTime.getDate() + 1); // Up to 24 hours from now
 
     let query = supabase
       .from("flights")
       .select("*")
       .eq("direction", direction)
-      .gte("scheduled_time", today.toISOString())
-      .lte("scheduled_time", tomorrow.toISOString())
+      .gte("scheduled_time", startTime.toISOString())
+      .lte("scheduled_time", endTime.toISOString())
       .order("scheduled_time", { ascending: true })
       .order("estimated_time", { ascending: true, nullsFirst: true })
-      .limit(300);
+      .limit(1000);
 
     if (airportCode !== "ALL") {
       query = query.eq("airport_code", airportCode);
@@ -86,7 +86,9 @@ export default function Home() {
         (f.flight_number && f.flight_number.toLowerCase().includes(q)) ||
         (f.origin_city && f.origin_city.toLowerCase().includes(q)) ||
         (f.destination_city && f.destination_city.toLowerCase().includes(q)) ||
-        (f.airline_name && f.airline_name.toLowerCase().includes(q))
+        (f.airline_name && f.airline_name.toLowerCase().includes(q)) ||
+        (f.airport_name && f.airport_name.toLowerCase().includes(q)) ||
+        (f.airport_code && f.airport_code.toLowerCase().includes(q))
       );
     }
     return result;
