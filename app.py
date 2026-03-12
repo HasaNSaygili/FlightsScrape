@@ -6,7 +6,8 @@ from dotenv import load_dotenv
 
 # Load environment variables from 1_scraper/.env
 env_path = os.path.join(os.path.dirname(__file__), '1_scraper', '.env')
-load_dotenv(env_path)
+if os.path.exists(env_path):
+    load_dotenv(env_path)
 
 app = Flask(__name__)
 
