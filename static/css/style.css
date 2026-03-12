@@ -1,0 +1,399 @@
+:root {
+    --bg-dark: #0f172a;
+    --glass-bg: rgba(15, 23, 42, 0.6);
+    --glass-border: rgba(51, 65, 85, 0.5);
+    --accent-sky: #38bdf8;
+    --accent-amber: #fbbf24;
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --card-hover: rgba(30, 41, 59, 0.5);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: var(--bg-dark);
+    background-image:
+        radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.1) 0px, transparent 50%);
+    color: var(--text-main);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+    line-height: 1.5;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Header Styles */
+.header h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    background: linear-gradient(to right, #38bdf8, #818cf8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.3));
+    margin-bottom: 0.5rem;
+}
+
+.header p {
+    color: var(--text-muted);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+}
+
+/* Navigation & Controls */
+.controls {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 1.5rem;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    min-height: 140px;
+    /* Stabilize height to prevent jumps */
+}
+
+.top-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.toggle-group {
+    display: flex;
+    background: rgba(2, 6, 23, 0.5);
+    padding: 0.25rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--glass-border);
+}
+
+.toggle-btn {
+    padding: 0.6rem 1.25rem;
+    border-radius: 0.5rem;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.toggle-btn.active.arrival {
+    background: rgba(56, 189, 248, 0.15);
+    color: var(--accent-sky);
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+}
+
+.toggle-btn.active.departure {
+    background: rgba(251, 191, 36, 0.15);
+    color: var(--accent-amber);
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.15);
+}
+
+.search-wrapper {
+    position: relative;
+    width: 300px;
+}
+
+input {
+    width: 100%;
+    background: #1e293b;
+    border: 1px solid var(--glass-border);
+    color: white;
+    padding: 0.6rem 1rem;
+    border-radius: 0.75rem;
+    outline: none;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+}
+
+input:focus {
+    border-color: var(--accent-sky);
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+}
+
+/* Airport Chips */
+.airport-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.airport-nav label {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 800;
+    white-space: nowrap;
+    text-transform: uppercase;
+}
+
+.airport-chips {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding: 0.5rem 0 1rem 0;
+    /* Added bottom padding for scrollbar space */
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-sky) transparent;
+}
+
+.airport-chips::-webkit-scrollbar {
+    height: 4px;
+}
+
+.airport-chips::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.airport-chips::-webkit-scrollbar-thumb {
+    background: var(--glass-border);
+    border-radius: 10px;
+}
+
+.airport-chips::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-sky);
+}
+
+
+.chip {
+    padding: 0.4rem 1rem;
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid var(--glass-border);
+    border-radius: 2rem;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.chip:hover {
+    background: rgba(51, 65, 85, 0.5);
+    color: var(--text-main);
+}
+
+.chip.active {
+    background: var(--accent-sky);
+    color: #0f172a;
+    border-color: var(--accent-sky);
+    box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+}
+
+/* Table Styles */
+.table-container {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 1.5rem;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.scroll-area {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    min-width: 900px;
+}
+
+thead th {
+    background: rgba(30, 41, 59, 0.8);
+    padding: 1rem 1rem;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+
+tbody tr {
+    border-bottom: 1px solid rgba(51, 65, 85, 0.3);
+    transition: background 0.2s;
+}
+
+tbody tr:hover {
+    background: var(--card-hover);
+}
+
+tbody td {
+    padding: 1rem 1.5rem;
+}
+
+.time-cell {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+}
+
+.scheduled {
+    font-size: 1.1rem;
+    color: #f8fafc;
+}
+
+.estimated {
+    font-size: 0.7rem;
+    color: var(--accent-amber);
+    display: block;
+}
+
+.flight-no {
+    color: #bae6fd;
+    font-weight: 700;
+}
+
+.city-cell {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    transition: color 0.3s;
+}
+
+.origin-active {
+    color: var(--accent-amber) !important;
+    font-weight: 800;
+}
+
+.dest-active {
+    color: var(--accent-sky) !important;
+    font-weight: 800;
+}
+
+
+/* Badges */
+.badge {
+    padding: 0.4rem 0.8rem;
+    border-radius: 0.375rem;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    display: inline-block;
+    min-width: 100px;
+    text-align: center;
+    letter-spacing: 0.05em;
+}
+
+.status-landed,
+.status-arrived,
+.status-on_time {
+    background: rgba(52, 211, 153, 0.15);
+    color: #4ade80;
+    border: 1px solid rgba(52, 211, 153, 0.3);
+}
+
+.status-delayed {
+    background: rgba(251, 191, 36, 0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.status-cancelled {
+    background: rgba(244, 63, 94, 0.15);
+    color: #fb7185;
+    border: 1px solid rgba(244, 63, 94, 0.3);
+}
+
+.status-departed,
+.status-boarding {
+    background: rgba(14, 165, 233, 0.15);
+    color: #38bdf8;
+    border: 1px solid rgba(14, 165, 233, 0.3);
+}
+
+.status-scheduled {
+    background: rgba(129, 140, 248, 0.15);
+    color: #818cf8;
+    border: 1px solid rgba(129, 140, 248, 0.3);
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.pg-link {
+    background: #1e293b;
+    border: 1px solid var(--glass-border);
+    color: var(--text-muted);
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.pg-link:not(.disabled):hover {
+    color: white;
+    border-color: var(--accent-sky);
+}
+
+.pg-link.disabled {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.pg-info {
+    color: var(--text-muted);
+    font-weight: 700;
+}
+
+.pg-info span {
+    color: var(--accent-sky);
+}
+
+/* responsive adjustments */
+@media (max-width: 768px) {
+    .hide-mobile {
+        display: none;
+    }
+
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+/* HTMX Loading Bar */
+.htmx-indicator {
+    display: none;
+}
+
+.htmx-request .htmx-indicator {
+    display: block;
+}
+
+.htmx-request.table-container {
+    opacity: 0.6;
+}

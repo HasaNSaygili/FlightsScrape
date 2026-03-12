@@ -18,8 +18,6 @@ SUPABASE_URL: str = os.getenv("SUPABASE_URL", "")
 SUPABASE_SERVICE_ROLE_KEY: str = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
 
 # ─── PROXY POOL ────────────────────────────────────────────────────────
-# Proxy'lerinizi buraya ekleyin veya .env dosyasından çekin.
-# Format: ["http://user:pass@ip:port", ...]
 
 PROXY_POOL: list[str] = [
     # "http://user:pass@proxy1:8080",

@@ -184,7 +184,7 @@ class HeasScraper(BaseScraper):
 
     def _parse_html_table(self, soup: BeautifulSoup, direction: DirectionEnum, target_date: date) -> list[FlightData]:
         """Sabiha Gökçen HTML tablosunu parse eder."""
-        flights: list[FlightData] = []
+        flights_map: dict[str, FlightData] = {}
         table = soup.select_one("table.feedtable")
 
         if not table:
@@ -196,17 +196,11 @@ class HeasScraper(BaseScraper):
             return []
 
         rows = tbody.find_all("tr")
-        for row in rows:
+        for i, row in enumerate(rows):
             cols = row.find_all("td")
             if len(cols) < 5:
                 continue
 
-            # Sütun sırası (SAW genelde şu formatta):
-            # 0: Havayolu İkonu/Adı
-            # 1: Uçuş Numarası (Örn: PC 1234)
-            # 2: Şehir (Örn: AMSTERDAM)
-            # 3: Saat (Örn: 09:00)
-            # 4: Beklenen/Gerçekleşen Saat veya Durum (Örn: KAPI KAPANDI veya 09:25)
 
             airline_name = cols[0].text.strip()
             flight_number = cols[1].text.strip()
@@ -257,9 +251,13 @@ class HeasScraper(BaseScraper):
                 status=_normalize_status(status_text),
                 status_detail=status_text if status_text else None,
             )
-            flights.append(flight)
+            # Deduplicate by (flight_number, flight_date, airport_code, direction)
+            # direction is added because SAW might have same flight entering and leaving if the date is the same (rare but possible)
+            key = f"{flight.flight_number}_{flight.flight_date}_{flight.airport_code}_{direction.value}"
+            flights_map[key] = flight
 
-        return flights
+        return list(flights_map.values())
+
 
     def _extract_airline_code(self, flight_number: str) -> str | None:
         """Uçuş numarasından havayolu kodunu çıkarır. 'PC 1234' → 'PC'"""

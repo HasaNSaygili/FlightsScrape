@@ -1,0 +1,29 @@
+{% include 'partials/flight_table.html' %}
+
+<!-- OOB update for toggles to keep 'active' state correct -->
+<div id="direction-toggles" hx-swap-oob="true" class="toggle-group">
+    <a href="/?direction=arrival&airport={{ selected_airport }}&search={{ search_query }}"
+        class="toggle-btn {{ 'active arrival' if direction == 'arrival' }}"
+        hx-get="/?direction=arrival&airport={{ selected_airport }}&search={{ search_query }}" hx-push-url="true"
+        hx-target="#flight-table-container">
+        <i data-lucide="plane-landing"></i> Gelişler
+    </a>
+    <a href="/?direction=departure&airport={{ selected_airport }}&search={{ search_query }}"
+        class="toggle-btn {{ 'active departure' if direction == 'departure' }}"
+        hx-get="/?direction=departure&airport={{ selected_airport }}&search={{ search_query }}" hx-push-url="true"
+        hx-target="#flight-table-container">
+        <i data-lucide="plane-takeoff"></i> Gidişler
+    </a>
+</div>
+
+<!-- OOB update for airport chips -->
+<div id="airport-chips" hx-swap-oob="true" class="airport-chips">
+    {% for apt in airports %}
+    <a href="/?direction={{ direction }}&airport={{ apt.code }}&search={{ search_query }}"
+        class="chip {{ 'active' if selected_airport == apt.code }}" data-code="{{ apt.code }}"
+        hx-get="/?direction={{ direction }}&airport={{ apt.code }}&search={{ search_query }}"
+        hx-target="#flight-table-container" hx-push-url="true">
+        {{ apt.name }}
+    </a>
+    {% endfor %}
+</div>

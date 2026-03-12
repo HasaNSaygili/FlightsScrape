@@ -1,0 +1,114 @@
+<div class="scroll-area">
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 80px;">TARİH</th>
+                <th style="width: 100px;">SAAT</th>
+                <th class="hide-mobile">HAVAYOLU</th>
+                <th>UÇUŞ</th>
+                <th>KALKIŞ</th>
+                <th>VARIŞ</th>
+                <th class="hide-mobile">HAVALİMANI</th>
+                <th style="text-align: center; width: 100px;">KAPI/BAGAJ</th>
+                <th style="text-align: center; width: 140px;">DURUM</th>
+
+
+            </tr>
+        </thead>
+        <tbody>
+            {% if flights %}
+            {% for flight in flights %}
+            <tr>
+                <td class="time-cell" style="color: var(--text-muted); font-size: 0.8rem;">{{ flight.scheduled_time |
+                    format_date }}</td>
+                <td class="time-cell">
+                    <span class="scheduled">{{ flight.scheduled_time | format_time }}</span>
+                    {% if flight.estimated_time %}
+                    <span class="estimated">Tahmini: {{ flight.estimated_time | format_time }}</span>
+                    {% endif %}
+                </td>
+                <td class="hide-mobile" style="color: #cbd5e1;">{{ flight.airline_name or flight.airline_code or '-' }}
+                </td>
+                <td class="flight-no">{{ flight.flight_number }}</td>
+                <td class="city-cell {{ 'origin-active' if direction == 'departure' }}">
+                    {{ flight.origin_city or '-' }}
+                </td>
+
+                <td class="city-cell {{ 'dest-active' if direction == 'arrival' }}">
+                    {{ flight.destination_city or '-' }}
+                </td>
+
+
+
+                <td class="hide-mobile" style="font-size: 0.8rem; color: var(--text-muted);">{{ flight.airport_name or
+                    flight.airport_code }}</td>
+                <td style="text-align: center;">
+                    <span
+                        style="background: #1e293b; padding: 0.2rem 0.5rem; border-radius: 4px; border: 1px solid var(--glass-border); font-size: 0.8rem;">
+                        {% if direction == 'arrival' %}
+                        {{ flight.belt or '-' }}
+                        {% else %}
+                        {{ flight.gate or flight.terminal or '-' }}
+                        {% endif %}
+                    </span>
+                </td>
+                <td style="text-align: center;">
+                    <span class="badge status-{{ flight.status|lower }}">
+                        {% if flight.status == 'landed' or flight.status == 'arrived' %}
+                        İNDİ / ARRIVED
+                        {% elif flight.status == 'on_time' %}
+                        ZAMANINDA
+                        {% elif flight.status == 'delayed' %}
+                        {{ flight.status_detail or 'GECİKMELİ' }}
+                        {% elif flight.status == 'cancelled' %}
+                        İPTAL / CANCELLED
+                        {% elif flight.status == 'departed' %}
+                        KALKTI / DEPARTED
+                        {% elif flight.status == 'boarding' %}
+                        BOARDING
+                        {% elif flight.status == 'scheduled' %}
+                        PLANLANDI
+                        {% else %}
+                        {{ flight.status_detail or 'BİLİNMİYOR' }}
+                        {% endif %}
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+            {% else %}
+            <tr>
+                <td colspan="9" style="text-align: center; padding: 4rem; color: var(--text-muted);">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">✈️</div>
+                    <p>Bu kriterlere uygun güncel uçuş bulunamadı.</p>
+                </td>
+            </tr>
+
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+{% if total_pages > 1 %}
+<div class="pagination">
+    <a href="/?direction={{ direction }}&airport={{ selected_airport }}&search={{ search_query }}&page={{ page - 1 }}"
+        class="pg-link {{ 'disabled' if page == 1 }}"
+        hx-get="/?direction={{ direction }}&airport={{ selected_airport }}&search={{ search_query }}&page={{ page - 1 }}"
+        hx-target="#flight-table-container" hx-push-url="true">
+
+        <i data-lucide="chevron-left"></i>
+    </a>
+
+    <div class="pg-info">
+        Sayfa <span>{{ page }}</span> / {{ total_pages }}
+    </div>
+
+    <a href="/?direction={{ direction }}&airport={{ selected_airport }}&search={{ search_query }}&page={{ page + 1 }}"
+        class="pg-link {{ 'disabled' if page == total_pages }}"
+        hx-get="/?direction={{ direction }}&airport={{ selected_airport }}&search={{ search_query }}&page={{ page + 1 }}"
+        hx-target="#flight-table-container" hx-push-url="true">
+
+        <i data-lucide="chevron-right"></i>
+    </a>
+</div>
+{% endif %}

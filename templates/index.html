@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live FIDS Turkey | Gerçek Zamanlı Uçuş Bilgileri</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@700&display=swap"
+        rel="stylesheet">
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>Live FIDS Turkey</h1>
+            <p>Gerçek Zamanlı Uçuş Bilgi Sistemi</p>
+        </header>
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="top-controls">
+                <!-- Direction Toggle -->
+                <div id="direction-toggles" class="toggle-group">
+                    <a href="/?direction=arrival&airport={{ selected_airport }}&search={{ search_query }}"
+                        class="toggle-btn {{ 'active arrival' if direction == 'arrival' }}"
+                        hx-get="/?direction=arrival&airport={{ selected_airport }}&search={{ search_query }}"
+                        hx-push-url="true" hx-target="#flight-table-container">
+                        <i data-lucide="plane-landing"></i> Gelişler
+                    </a>
+                    <a href="/?direction=departure&airport={{ selected_airport }}&search={{ search_query }}"
+                        class="toggle-btn {{ 'active departure' if direction == 'departure' }}"
+                        hx-get="/?direction=departure&airport={{ selected_airport }}&search={{ search_query }}"
+                        hx-push-url="true" hx-target="#flight-table-container">
+                        <i data-lucide="plane-takeoff"></i> Gidişler
+                    </a>
+                </div>
+
+                <!-- Search Box -->
+                <div class="search-wrapper">
+                    <input type="text" name="search" placeholder="Uçuş no, Şehir veya Havayolu"
+                        value="{{ search_query }}" hx-get="/" hx-trigger="keyup changed delay:500ms"
+                        hx-target="#flight-table-container" hx-push-url="true"
+                        hx-vals='js:{"direction": document.querySelector(".toggle-btn.active").getAttribute("href").includes("direction=arrival") ? "arrival" : "departure", "airport": document.querySelector(".chip.active") ? document.querySelector(".chip.active").getAttribute("data-code") : "ALL"}'>
+
+                </div>
+            </div>
+
+            <!-- Airport Chips -->
+            <div class="airport-nav">
+                <label>Havalimanları:</label>
+                <div id="airport-chips" class="airport-chips">
+                    {% for apt in airports %}
+                    <a href="/?direction={{ direction }}&airport={{ apt.code }}&search={{ search_query }}"
+                        class="chip {{ 'active' if selected_airport == apt.code }}" data-code="{{ apt.code }}"
+                        hx-get="/?direction={{ direction }}&airport={{ apt.code }}&search={{ search_query }}"
+                        hx-target="#flight-table-container" hx-push-url="true">
+                        {{ apt.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Flights Table Section -->
+        <div id="flight-table-container" class="table-container"
+            hx-get="/?direction={{ direction }}&airport={{ selected_airport }}&search={{ search_query }}&page={{ page }}"
+            hx-trigger="every 30s" hx-swap="innerHTML transition:true">
+            {% include 'partials/flight_table.html' %}
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize icons
+        lucide.createIcons();
+
+        // Re-init icons after HTMX swap
+        document.body.addEventListener('htmx:afterSwap', function (evt) {
+            lucide.createIcons();
+        });
+    </script>
+</body>
+
+</html>

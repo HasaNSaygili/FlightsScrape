@@ -6,16 +6,16 @@ Supabase'e toplu (bulk) upsert işlemleri yapan istemci modülü.
 
 from __future__ import annotations
 
-from supabase import create_client, Client
+from supabase import create_client, Client #Supabase kütüphanesinden create_client ve Client sınıflarını içe aktarır.
 
-from config import SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
-from core.flight_model import FlightData
+from config import SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY #Supabase bağlantı bilgilerini config dosyasından içe aktarır.
+from core.flight_model import FlightData #FlightData sınıfını içe aktarır.
 
 
 # ─── CLIENT SINGLETON ─────────────────────────────────────────────────
 
 _client: Client | None = None
-
+#_client değişkeni, Supabase bağlantısını tutacak olan global değişkendir. Başlangıçta None değerine sahiptir.
 
 def get_client() -> Client:
     """Supabase istemcisini döndürür (singleton)."""

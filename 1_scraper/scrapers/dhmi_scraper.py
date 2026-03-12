@@ -62,9 +62,84 @@ REQUIRED_HEADERS = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
 }
 
-# DHMİ API'deki AirportID → IATA kodu eşlemesi
-# Bu map, /api/Airports endpoint'inden çekilen verilere dayanır.
-# Gerçek çalışmada bu map'i dinamik olarak çekip cache'leyebilirsiniz.
+# DHMİ Havalimanları: İsme göre IATA kodu bulma (NAME-BASED LOOKUP)
+# Statik ID map yerine isim kullanır — DHMI API'nin ID sırası değişebilir!
+DHMI_NAME_TO_IATA: dict[str, str] = {
+    "ankara esenboga": "ESB",
+    "istanbul havalimanı": "IST",
+    "adana": "ADA",
+    "adıyaman": "ADF",
+    "antalya": "AYT",
+    "ağrı": "AJI",
+    "afyon": "AFY",
+    "amasya": "UAB",
+    "batman": "BAL",
+    "balıkesir": "BZI",
+    "bingöl": "BGG",
+    "bursa": "BXN",
+    "çanakkale": "CKZ",
+    "denizli": "DNZ",
+    "diyarbakır": "DIY",
+    "erzincan": "ERC",
+    "erzurum": "ERZ",
+    "elazığ": "EZS",
+    "gaziantep": "GZT",
+    "hatay": "HTY",
+    "iğdır": "IGD",
+    "isparta": "ISE",
+    "kars": "KSY",
+    "kastamonu": "KFS",
+    "konya": "KYA",
+    "kahramanmaraş": "KCM",
+    "malatya": "MLX",
+    "muş": "MSR",
+    "sinop": "NOP",
+    "sivas": "VAS",
+    "şanlıurfa": "SFQ",
+    "mardin": "MQM",
+    "trabzon": "TZX",
+    "uşak": "USQ",
+    "van": "VAN",
+    "samsun": "SZF",
+    "zonguldak": "ONQ",
+    "ordu giresun": "OGU",
+    "şırnak": "NKT",
+    "tokat": "TJK",
+    "gökçeada": "GKD",
+    "hakkari-yüksekova": "YKO",
+    "yüksekova": "YKO",
+    "rize artvin": "RIZ",
+    "rize": "RIZ",
+    "gazipaşa": "GZP",
+    "kapadokya": "NAV",
+    "nevşehir": "NAV",
+    "tekirdag": "TEQ",
+    "milas bodrum": "BJV",
+    "muğla dalaman": "DLM",
+    "dalaman": "DLM",
+    "İzmir adnan menderes": "ADB",
+    "kayseri": "ASR",
+    "hakkari": "YKO",
+    "çıldır": "CII",
+}
+
+
+def _name_to_iata(airport_name: str) -> str | None:
+    """Havalimanı adından IATA kodunu bulur (case-insensitive, kısmi eşleşme)."""
+    if not airport_name:
+        return None
+    name_lower = airport_name.lower().strip()
+    # Tam eşleşme önce
+    if name_lower in DHMI_NAME_TO_IATA:
+        return DHMI_NAME_TO_IATA[name_lower]
+    # Kısmi eşleşme
+    for key, iata in DHMI_NAME_TO_IATA.items():
+        if key in name_lower:
+            return iata
+    return None
+
+
+# Yedek statik ID → IATA map (sadece isim bazlı lookup başarısız olursa)
 DHMI_AIRPORT_MAP: dict[int, dict] = {
     1: {"iata": "ESB", "name": "Ankara Esenboğa Havalimanı"},
     2: {"iata": "ADA", "name": "Adana Havalimanı"},
@@ -110,7 +185,6 @@ DHMI_AIRPORT_MAP: dict[int, dict] = {
     42: {"iata": "RIZ", "name": "Rize-Artvin Havalimanı"},
     43: {"iata": "SFQ", "name": "Şanlıurfa Havalimanı"},
     44: {"iata": "CII", "name": "Çıldır Havalimanı"},
-    # Aşağıdaki ID'ler dinamik olarak /api/Airports'tan güncellenebilir
 }
 
 
@@ -382,13 +456,21 @@ class DhmiScraper(BaseScraper):
         )
 
     def _get_iata(self, airport_id: int, airport_name: str) -> str:
-        """Airport ID'den IATA kodunu çözer."""
+        """Havalimanı adından IATA kodunu çözer. İsim bazlı lookup önceliklidir."""
+        # 1) İsim bazlı lookup (en güvenilir — API ID'leri değişse bile çalışır)
+        iata_from_name = _name_to_iata(airport_name)
+        if iata_from_name:
+            return iata_from_name
+        # 2) Statik ID map'e bak (yedek)
         if airport_id in DHMI_AIRPORT_MAP:
+            logger.debug(
+                f"[dhmi] İsim bulunamadı, statik map kullanıldı: id={airport_id} ({airport_name})"
+            )
             return DHMI_AIRPORT_MAP[airport_id]["iata"]
-        # Fallback: Bilinmeyen havalimanı için ID tabanlı kod
+        # 3) Hiçbiri eşleşmezse ID tabanlı fallback
         logger.warning(
-            f"[dhmi] Bilinmeyen airport_id={airport_id} ({airport_name}), "
-            f"'DHM{airport_id}' kullanılacak"
+            f"[dhmi] Bilinmeyen havalimanı: id={airport_id}, name='{airport_name}' "
+            f"→ 'DHM{airport_id}' kullanılıyor"
         )
         return f"DHM{airport_id}"
 
